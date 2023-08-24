@@ -4,6 +4,8 @@ const sessions = new Map()
 const { baseWebhookURL, sessionFolderPath, maxAttachmentSize, setMessagesAsSeen, webVersion, webVersionCacheType } = require('./config')
 const { triggerWebhook, waitForNestedObject, checkIfEventisEnabled } = require('./utils')
 
+let qrCodeShare = null
+
 // Function to validate if the session is ready
 const validateSession = async (sessionId) => {
   try {
@@ -123,7 +125,8 @@ const setupSession = (sessionId) => {
 
     // Save the session to the Map
     sessions.set(sessionId, client)
-    return { success: true, message: 'Session initiated successfully', client }
+    console.log(qrCodeShare)
+    return { success: true, message: 'Session initiated successfully', qrCode: qrCodeShare, client }
   } catch (error) {
     return { success: false, message: error.message, client: null }
   }
@@ -262,6 +265,7 @@ const initializeEvents = (client, sessionId) => {
   checkIfEventisEnabled('qr')
     .then(_ => {
       client.on('qr', (qr) => {
+        qrCodeShare = qr
         triggerWebhook(sessionWebhook, sessionId, 'qr', { qr })
       })
     })

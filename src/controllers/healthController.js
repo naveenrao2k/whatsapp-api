@@ -44,7 +44,11 @@ const localCallbackExample = async (req, res) => {
     const { dataType, data } = req.body
     if (dataType === 'qr') { qrcode.generate(data.qr, { small: true }) }
     fs.writeFile(`${sessionFolderPath}/message_log.txt`, `${JSON.stringify(req.body)}\r\n`, { flag: 'a+' }, _ => _)
+
     const sessionId = req.body.sessionId
+    if (!fs.existsSync(`${sessionFolderPath}/sessionQR`)) {
+      fs.mkdirSync(`${sessionFolderPath}/sessionQR`) // Create the session directory if it doesn't exist
+    }
     fs.writeFile(`${sessionFolderPath}/sessionQR/${sessionId}.txt`, `${JSON.stringify(req.body)}\r\n`, { flag: 'w+' }, _ => _)
 
     res.json({ success: true })
